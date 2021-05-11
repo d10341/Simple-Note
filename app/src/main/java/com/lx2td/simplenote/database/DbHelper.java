@@ -29,7 +29,7 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "simplenote";
 
     // Database version aligned if possible to software version
-    private static final int DATABASE_VERSION = 560;
+    private static final int DATABASE_VERSION = 1;
     // Sql query file directory
     private static final String SQL_DIR = "sql";
 
@@ -337,45 +337,6 @@ public class DbHelper extends SQLiteOpenHelper {
         return true;
     }
 
-
-
-    /**
-     * Search for notes with reminder
-     *
-     * @param filterPastReminders Excludes past reminders
-     * @return Notes list
-     */
-    public List<Note> getNotesWithReminder(boolean filterPastReminders) {
-        String whereCondition = " WHERE " + KEY_REMINDER
-                + (filterPastReminders ? " >= " + Calendar.getInstance().getTimeInMillis() : " IS NOT NULL");
-        return getNotes(whereCondition, true);
-    }
-
-
-    /**
-     * Returns all notes that have a reminder that has not been alredy fired
-     *
-     * @return Notes list
-     */
-    public List<Note> getNotesWithReminderNotFired() {
-        String whereCondition = " WHERE " + KEY_REMINDER + " IS NOT NULL"
-                + " AND " + KEY_REMINDER_FIRED + " IS NOT 1";
-        return getNotes(whereCondition, true);
-    }
-
-
-    /**
-     * Search for notes with reminder expiring the current day
-     *
-     * @return Notes list
-     */
-    public List<Note> getTodayReminders() {
-        String whereCondition =
-                " WHERE DATE(" + KEY_REMINDER + "/1000, 'unixepoch') = DATE('now')";
-        return getNotes(whereCondition, false);
-    }
-
-
     /**
      * Retrieves all attachments related to specific note
      */
@@ -444,7 +405,5 @@ public class DbHelper extends SQLiteOpenHelper {
         getDatabase(true)
                 .update(TABLE_NOTES, values, KEY_ID + " = ?", new String[]{String.valueOf(noteId)});
     }
-
-
-
+    
 }
