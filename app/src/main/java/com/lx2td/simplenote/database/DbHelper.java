@@ -405,5 +405,5 @@ public class DbHelper extends SQLiteOpenHelper {
         getDatabase(true)
                 .update(TABLE_NOTES, values, KEY_ID + " = ?", new String[]{String.valueOf(noteId)});
     }
-    
+
 }

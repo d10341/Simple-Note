@@ -18,6 +18,7 @@ import android.preference.PreferenceManager;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.lx2td.simplenote.database.DbHelper;
 import com.lx2td.simplenote.utils.HelperUtils;
 
 import androidx.annotation.RequiresApi;
@@ -49,6 +50,7 @@ public class NotesListActivity extends AppCompatActivity implements SearchView.O
     private FloatingActionButton fab;
     private SharedPreferences preferences;
     private AlertDialog dialog;
+    private DbHelper db;
 
     private @ColorInt
     int colourPrimary, colourFont, colourBackground;
