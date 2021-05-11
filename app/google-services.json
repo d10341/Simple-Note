@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "547453140097",
+    "project_id": "note-171bd",
+    "storage_bucket": "note-171bd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:547453140097:android:1cccd22457aadef6772180",
+        "android_client_info": {
+          "package_name": "com.lx2td.simplenote"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "547453140097-tlj96lij70h44cb8madld9r9id0q12tu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7LoiydydcngGU8o-SrRpNh7P3MUq8wPA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "547453140097-tlj96lij70h44cb8madld9r9id0q12tu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

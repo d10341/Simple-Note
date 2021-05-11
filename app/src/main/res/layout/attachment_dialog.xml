@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:pixlui="http://schemas.android.com/apk/com.neopixl.pixlui"
+    android:id="@+id/attachment_dialog_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/camera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/icon_selector"
+        android:drawableLeft="@drawable/ic_photo_camera_black_24dp"
+        android:drawableStart="@drawable/ic_photo_camera_black_24dp"
+        android:drawablePadding="12dp"
+        android:padding="12dp"
+        android:paddingStart="16dp"
+        android:paddingLeft="16dp"
+        android:paddingEnd="16dp"
+        android:paddingRight="16dp"
+        android:text="Camera"
+        android:textSize="16sp"
+        android:textColor="#2d2d2d" />
+
+    <TextView
+        android:id="@+id/video"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/icon_selector"
+        android:drawableLeft="@drawable/ic_videocam_black_24dp"
+        android:drawableStart="@drawable/ic_videocam_black_24dp"
+        android:drawablePadding="12dp"
+        android:padding="12dp"
+        android:paddingStart="16dp"
+        android:paddingLeft="16dp"
+        android:paddingEnd="16dp"
+        android:text="Video"
+        android:textSize="16sp"
+        android:textColor="#2d2d2d" />
+
+    <TextView
+        android:id="@+id/files"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/icon_selector"
+        android:drawableLeft="@drawable/ic_insert_drive_file_black_24dp"
+        android:drawableStart="@drawable/ic_insert_drive_file_black_24dp"
+        android:drawablePadding="12dp"
+        android:padding="12dp"
+        android:paddingStart="16dp"
+        android:paddingLeft="16dp"
+        android:paddingEnd="16dp"
+        android:text="Files"
+        android:textSize="16sp"
+        android:textColor="#2d2d2d" />
+
+    <TextView
+        android:id="@+id/recording"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/icon_selector"
+        android:drawableLeft="@drawable/ic_mic_black_24dp"
+        android:drawableStart="@drawable/ic_mic_black_24dp"
+        android:drawablePadding="12dp"
+        android:padding="12dp"
+        android:paddingStart="16dp"
+        android:paddingLeft="16dp"
+        android:paddingEnd="16dp"
+        android:text="Record"
+        android:textSize="16sp"
+        android:textColor="#2d2d2d" />
+
+    <TextView
+        android:id="@+id/location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/icon_selector"
+        android:drawableLeft="@drawable/ic_pin_drop_black_24dp"
+        android:drawableStart="@drawable/ic_pin_drop_black_24dp"
+        android:drawablePadding="12dp"
+        android:padding="12dp"
+        android:paddingStart="16dp"
+        android:paddingLeft="16dp"
+        android:paddingEnd="16dp"
+        android:text="Location"
+        android:textSize="16sp"
+        android:textColor="#2d2d2d" />
+
+    <TextView
+        android:id="@+id/timestamp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/icon_selector"
+        android:drawableLeft="@drawable/ic_clock_outline_black_24dp"
+        android:drawableStart="@drawable/ic_clock_outline_black_24dp"
+        android:drawablePadding="12dp"
+        android:padding="12dp"
+        android:paddingStart="16dp"
+        android:paddingLeft="16dp"
+        android:paddingEnd="16dp"
+        android:text="Timestamp"
+        android:textSize="16sp"
+        android:textColor="#2d2d2d" />
+
+</LinearLayout>
