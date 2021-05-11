@@ -183,34 +183,34 @@ public class NoteActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.btn_attachment:
-//                LayoutInflater inflater = mainActivity.getLayoutInflater();
-//                final View layout = inflater.inflate(R.layout.attachment_dialog, null);
-//
-//                attachmentDialog = new MaterialDialog.Builder(mainActivity)
-//                        .autoDismiss(false)
-//                        .customView(layout, false)
-//                        .build();
-//                attachmentDialog.show();
-//
-//                // Camera
-//                android.widget.TextView cameraSelection = layout.findViewById(R.id.camera);
-//                cameraSelection.setOnClickListener(new AttachmentOnClickListener());
-//                // Audio recording
-//                android.widget.TextView recordingSelection = layout.findViewById(R.id.recording);
-//                toggleAudioRecordingStop(recordingSelection);
-//                recordingSelection.setOnClickListener(new AttachmentOnClickListener());
-//                // Video recording
-//                android.widget.TextView videoSelection = layout.findViewById(R.id.video);
-//                videoSelection.setOnClickListener(new AttachmentOnClickListener());
-//                // Files
-//                android.widget.TextView filesSelection = layout.findViewById(R.id.files);
-//                filesSelection.setOnClickListener(new AttachmentOnClickListener());
-//                // Location
-//                android.widget.TextView locationSelection = layout.findViewById(R.id.location);
-//                locationSelection.setOnClickListener(new AttachmentOnClickListener());
-//                // Time
-//                android.widget.TextView timeStampSelection = layout.findViewById(R.id.timestamp);
-//                timeStampSelection.setOnClickListener(new AttachmentOnClickListener());
+                LayoutInflater inflater = mainActivity.getLayoutInflater();
+                final View layout = inflater.inflate(R.layout.attachment_dialog, null);
+
+                attachmentDialog = new MaterialDialog.Builder(mainActivity)
+                        .autoDismiss(false)
+                        .customView(layout, false)
+                        .build();
+                attachmentDialog.show();
+
+                // Camera
+                android.widget.TextView cameraSelection = layout.findViewById(R.id.camera);
+                cameraSelection.setOnClickListener(new AttachmentOnClickListener());
+                // Audio recording
+                android.widget.TextView recordingSelection = layout.findViewById(R.id.recording);
+                toggleAudioRecordingStop(recordingSelection);
+                recordingSelection.setOnClickListener(new AttachmentOnClickListener());
+                // Video recording
+                android.widget.TextView videoSelection = layout.findViewById(R.id.video);
+                videoSelection.setOnClickListener(new AttachmentOnClickListener());
+                // Files
+                android.widget.TextView filesSelection = layout.findViewById(R.id.files);
+                filesSelection.setOnClickListener(new AttachmentOnClickListener());
+                // Location
+                android.widget.TextView locationSelection = layout.findViewById(R.id.location);
+                locationSelection.setOnClickListener(new AttachmentOnClickListener());
+                // Time
+                android.widget.TextView timeStampSelection = layout.findViewById(R.id.timestamp);
+                timeStampSelection.setOnClickListener(new AttachmentOnClickListener());
                 return(true);
 
             case R.id.btn_undo:
@@ -566,8 +566,6 @@ public class NoteActivity extends AppCompatActivity {
                     break;
                 case R.id.timestamp:
                     addTimestamp();
-                    break;
-                default:
                     break;
             }
             if (!isRecording) {

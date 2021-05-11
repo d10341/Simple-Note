@@ -47,7 +47,6 @@ public class DbHelper extends SQLiteOpenHelper {
     public static final String KEY_LATITUDE = "latitude";
     public static final String KEY_LONGITUDE = "longitude";
     public static final String KEY_ADDRESS = "address";
-    public static final String KEY_CHECKLIST = "checklist";
 
     // Attachments table name
     public static final String TABLE_ATTACHMENTS = "attachments";
@@ -62,8 +61,6 @@ public class DbHelper extends SQLiteOpenHelper {
 
     // Queries
     private static final String CREATE_QUERY = "create.sql";
-    private static final String UPGRADE_QUERY_PREFIX = "upgrade-";
-    private static final String UPGRADE_QUERY_SUFFIX = ".sql";
 
 
     private final Context mContext;
@@ -152,7 +149,6 @@ public class DbHelper extends SQLiteOpenHelper {
         values.put(KEY_LATITUDE, note.getLatitude());
         values.put(KEY_LONGITUDE, note.getLongitude());
         values.put(KEY_ADDRESS, note.getAddress());
-        values.put(KEY_CHECKLIST, note.isChecklist() != null && note.isChecklist());
 
         db.insertWithOnConflict(TABLE_NOTES, KEY_ID, values, SQLiteDatabase.CONFLICT_REPLACE);
 
@@ -273,8 +269,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 + KEY_RECURRENCE_RULE + ","
                 + KEY_LATITUDE + ","
                 + KEY_LONGITUDE + ","
-                + KEY_ADDRESS + ","
-                + KEY_CHECKLIST + ","
+                + KEY_ADDRESS
                 + " FROM " + TABLE_NOTES + " "
                 + whereCondition
                 + (order ? " ORDER BY " + sortColumn + " COLLATE NOCASE " + sortOrder : "");
@@ -387,12 +382,6 @@ public class DbHelper extends SQLiteOpenHelper {
     public ArrayList<Attachment> getNoteAttachments(Note note) {
         String whereCondition = " WHERE " + KEY_ATTACHMENT_NOTE_ID + " = " + note.get_id();
         return getAttachments(whereCondition);
-    }
-
-
-    public List<Note> getChecklists() {
-        String whereCondition = " WHERE " + KEY_CHECKLIST + " = 1";
-        return getNotes(whereCondition, false);
     }
 
 
