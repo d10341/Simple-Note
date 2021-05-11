@@ -1,10 +1,14 @@
 package com.lx2td.simplenote.utils;
 
+import android.app.Activity;
+import android.app.Application;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
 
 import androidx.core.content.FileProvider;
 
+import com.lx2td.simplenote.NoteActivity;
 import com.lx2td.simplenote.models.Attachment;
 
 import java.io.File;
@@ -18,8 +22,9 @@ public class FileProviderHelper {
      * Generates the FileProvider URI for a given existing file
      */
     public static Uri getFileProvider(File file) {
-        return FileProvider.getUriForFile(getAppContext(),
-                OmniNotes.getAppContext().getPackageName() + ".authority", file);
+        Context context = NoteActivity.getContext();
+        return FileProvider.getUriForFile(context,
+                context.getPackageName() + ".authority", file);
     }
 
     /**

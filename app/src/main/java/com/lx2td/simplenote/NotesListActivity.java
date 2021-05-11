@@ -18,6 +18,7 @@ import android.preference.PreferenceManager;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.lx2td.simplenote.utils.HelperUtils;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;

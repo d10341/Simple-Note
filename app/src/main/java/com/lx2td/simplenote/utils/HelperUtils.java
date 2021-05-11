@@ -1,4 +1,4 @@
-package com.lx2td.simplenote;
+package com.lx2td.simplenote.utils;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -11,6 +11,8 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+
+import com.lx2td.simplenote.R;
 
 import java.io.BufferedReader;
 import java.io.File;

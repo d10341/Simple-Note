@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
+import com.lx2td.simplenote.NoteActivity;
 import com.lx2td.simplenote.models.Attachment;
 
 import org.apache.commons.io.FileUtils;
@@ -68,7 +69,7 @@ public class StorageHelper {
 
 
     public static File getAttachmentDir() {
-        return Environment.getExternalStorageDirectory();
+        return NoteActivity.getContext().getExternalFilesDir(null);
     }
 
 
@@ -77,7 +78,7 @@ public class StorageHelper {
      */
     public static File getDbSyncDir(Context mContext) {
         File extFilesDir = mContext.getExternalFilesDir(null);
-        File dbSyncDir = new File(extFilesDir, "Simple Note");
+        File dbSyncDir = new File(extFilesDir, "db_sync");
         dbSyncDir.mkdirs();
         if (dbSyncDir.exists() && dbSyncDir.isDirectory()) {
             return dbSyncDir;
@@ -276,13 +277,8 @@ public class StorageHelper {
     }
 
 
-    public static File getOrCreateBackupDir(String backupName) {
-        File backupDir = null;
-        try {
-            backupDir = new File(getOrCreateExternalStoragePublicDir(), backupName);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public static File getOrCreateBackupDir(String backupName) throws Exception {
+        File backupDir = new File(getOrCreateExternalStoragePublicDir(), backupName);
         if (!backupDir.exists() && backupDir.mkdirs()) {
             createNoMediaFile(backupDir);
         }
@@ -294,10 +290,8 @@ public class StorageHelper {
         try {
             boolean created = new File(folder, ".nomedia").createNewFile();
             if (!created) {
-
             }
         } catch (IOException e) {
-
         }
     }
 
@@ -329,7 +323,6 @@ public class StorageHelper {
             }
             // Can't understand why on some devices this fails
         } catch (NoSuchMethodError e) {
-
         }
         return getSize(directory, blockSize);
     }
@@ -463,7 +456,7 @@ public class StorageHelper {
             try {
                 FileUtils.moveFile(new File(uri.getPath()), f);
             } catch (IOException e) {
-
+                
             }
         } else {
             f = StorageHelper.createExternalStoragePrivateFile(mContext, uri, extension);

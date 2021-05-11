@@ -18,9 +18,11 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import androidx.annotation.ColorInt;
+import androidx.annotation.RequiresApi;
 import 	androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import android.app.AlertDialog;
@@ -36,11 +38,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.lx2td.simplenote.models.Attachment;
 import com.lx2td.simplenote.models.Note;
 import com.lx2td.simplenote.utils.FileProviderHelper;
+import com.lx2td.simplenote.utils.HelperUtils;
 import com.lx2td.simplenote.utils.PermissionsHelper;
 import com.lx2td.simplenote.utils.StorageHelper;
 
@@ -75,7 +79,7 @@ public class NoteActivity extends AppCompatActivity {
     //private Note note;
     private Note noteTmp;
     private Note noteOriginal;
-    private final Context context;
+    private static Context context;
 
     // Audio recording
     private String recordName;
@@ -84,7 +88,6 @@ public class NoteActivity extends AppCompatActivity {
     private boolean isRecording = false;
     private View isPlayingView = null;
     private Bitmap recordingBitmap;
-    private ChecklistManager mChecklistManager;
     private Uri attachmentUri;
     private long audioRecordingTimeStart;
     private long audioRecordingTime;
@@ -92,22 +95,19 @@ public class NoteActivity extends AppCompatActivity {
     private @ColorInt
     int colourPrimary, colourFont, colourBackground;
 
-    public NoteActivity(Context context) {
-        this.context = context;
-    }
-
     public static Intent getStartIntent(Context context, String title) {
         Intent intent = new Intent(context, NoteActivity.class);
         intent.putExtra(EXTRA_NOTE_TITLE, title);
         return intent;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note);
-        titleText = findViewById(R.id.et_title);
-        noteText = findViewById(R.id.et_note);
+        titleText = findViewById(R.id.detail_title);
+        //noteText = findViewById(R.id.et_note);
 
         Intent intent = getIntent();
         String action = intent.getAction();
@@ -258,6 +258,15 @@ public class NoteActivity extends AppCompatActivity {
         return (super.onOptionsItemSelected(item));
     }
 
+    public void startGetContentAction() {
+        Intent filesIntent;
+        filesIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        filesIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        filesIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        filesIntent.setType("*/*");
+        startActivityForResult(filesIntent, FILES);
+    }
+
     /**
      * Audio recordings playback
      */
@@ -331,7 +340,7 @@ public class NoteActivity extends AppCompatActivity {
 
     private void startRecording(View v) {
         PermissionsHelper.requestPermission(NoteActivity.this, Manifest.permission.RECORD_AUDIO,
-                "Permission to use microphone is needed  to record audio notes", binding.snackbarPlaceholder, () -> {
+                1, findViewById(R.id.snackbar_placeholder), () -> {
 
                     isRecording = true;
                     toggleAudioRecordingStop(v);
@@ -382,6 +391,7 @@ public class NoteActivity extends AppCompatActivity {
         colourNavbar = preferences.getBoolean(HelperUtils.PREFERENCE_COLOUR_NAVBAR, false);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void applySettings() {
         HelperUtils.applyColours(NoteActivity.this, colourPrimary, colourNavbar);
 
@@ -390,7 +400,7 @@ public class NoteActivity extends AppCompatActivity {
         titleText.setBackgroundTintList(ColorStateList.valueOf(colourPrimary));
 
         // Set actionbar and background colour
-        findViewById(R.id.scroll_view).setBackgroundColor(colourBackground);
+        findViewById(R.id.detail_root).setBackgroundColor(colourBackground);
         if (getSupportActionBar() != null)
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(colourPrimary));
 
@@ -480,31 +490,35 @@ public class NoteActivity extends AppCompatActivity {
         attachmentUri = FileProviderHelper.getFileProvider(f);
         takeVideoIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, attachmentUri);
-        String maxVideoSizeStr = "".equals(prefs.getString("settings_max_video_size",
-                "")) ? "0" : prefs.getString("settings_max_video_size", "");
+        String maxVideoSizeStr = "70";
         long maxVideoSize = parseLong(maxVideoSizeStr) * 1024L * 1024L;
         takeVideoIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, maxVideoSize);
         startActivityForResult(takeVideoIntent, TAKE_VIDEO);
     }
 
     private void addTimestamp() {
-        Editable editable = binding.fragmentDetailContent.detailContent.getText();
-        int position = binding.fragmentDetailContent.detailContent.getSelectionStart();
+        Editable editable = (Editable) ((EditText)findViewById(R.id.detail_content)).getText();
+        int position = ((EditText)findViewById(R.id.detail_content)).getSelectionStart();
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
         String dateStamp = dateFormat.format(new Date().getTime()) + " ";
-        if (noteTmp.isChecklist()) {
-            if (mChecklistManager.getFocusedItemView() != null) {
-                editable = mChecklistManager.getFocusedItemView().getEditText().getEditableText();
-                position = mChecklistManager.getFocusedItemView().getEditText().getSelectionStart();
-            } else {
-                ((CheckListView) toggleChecklistView)
-                        .addItem(dateStamp, false, mChecklistManager.getCount());
-            }
-        }
         String leadSpace = position == 0 ? "" : " ";
         dateStamp = leadSpace + dateStamp;
         editable.insert(position, dateStamp);
         Selection.setSelection(editable, position + dateStamp.length());
+    }
+
+    public static Context getContext() {
+        return context;
+    }
+
+    private void displayLocationDialog() {
+        //getLocation(new OnGeoUtilResultListenerImpl(mainActivity, mFragment, noteTmp));
+    }
+
+    private void askReadExternalStoragePermission() {
+        PermissionsHelper.requestPermission(NoteActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE,
+                0,
+                findViewById(R.id.snackbar_placeholder), this::startGetContentAction);
     }
 
     /**
@@ -530,8 +544,8 @@ public class NoteActivity extends AppCompatActivity {
                                 MIME_TYPE_AUDIO);
                         attachment.setLength(audioRecordingTime);
                         addAttachment(attachment);
-                        mAttachmentAdapter.notifyDataSetChanged();
-                        mGridView.autoresize();
+//                        mAttachmentAdapter.notifyDataSetChanged();
+//                        mGridView.autoresize();
                     }
                     break;
                 case R.id.video:
@@ -539,7 +553,7 @@ public class NoteActivity extends AppCompatActivity {
                     break;
                 case R.id.files:
                     if (ContextCompat
-                            .checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                            .checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) ==
                             PackageManager.PERMISSION_GRANTED) {
                         startGetContentAction();
                     } else {

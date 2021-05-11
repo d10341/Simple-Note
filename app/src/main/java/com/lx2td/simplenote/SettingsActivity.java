@@ -9,7 +9,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import androidx.annotation.ColorInt;
-import android.app.DialogFragment;
 import 	androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.widget.CompoundButtonCompat;
@@ -21,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.enrico.colorpicker.colorDialog;
+import com.lx2td.simplenote.utils.HelperUtils;
 
 public class SettingsActivity extends AppCompatActivity implements colorDialog.ColorSelectedListener {
 
