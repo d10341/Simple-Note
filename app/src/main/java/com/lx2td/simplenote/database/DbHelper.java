@@ -16,6 +16,7 @@ import com.lx2td.simplenote.models.Note;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,6 +62,8 @@ public class DbHelper extends SQLiteOpenHelper {
 
     // Queries
     private static final String CREATE_QUERY = "create.sql";
+    private static final String UPGRADE_QUERY_PREFIX = "upgrade-";
+    private static final String UPGRADE_QUERY_SUFFIX = ".sql";
 
 
     private final Context mContext;
@@ -82,7 +85,7 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
 
-    private DbHelper(Context mContext) {
+    public DbHelper(Context mContext) {
         super(mContext, DATABASE_NAME, null, DATABASE_VERSION);
         this.mContext = mContext;
     }
@@ -122,7 +125,24 @@ public class DbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        this.db = db;
 
+        try {
+            String[] files = mContext.getAssets().list(SQL_DIR);
+            Arrays.sort(files);
+            for (String sqlFile : files) {
+                if (sqlFile.startsWith(UPGRADE_QUERY_PREFIX)) {
+                    int fileVersion = Integer.parseInt(sqlFile.substring(UPGRADE_QUERY_PREFIX.length(),
+                            sqlFile.length() - UPGRADE_QUERY_SUFFIX.length()));
+                    if (fileVersion > oldVersion && fileVersion <= newVersion) {
+                        execSqlFile(sqlFile, db);
+                    }
+                }
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException("Database upgrade failed", e);
+        }
     }
 
 
@@ -271,8 +291,8 @@ public class DbHelper extends SQLiteOpenHelper {
                 + KEY_LONGITUDE + ","
                 + KEY_ADDRESS
                 + " FROM " + TABLE_NOTES + " "
-                + whereCondition
-                + (order ? " ORDER BY " + sortColumn + " COLLATE NOCASE " + sortOrder : "");
+                + whereCondition;
+                //+ (order ? " ORDER BY " + sortColumn + " COLLATE NOCASE " + sortOrder : "");
 
 
         try (Cursor cursor = getDatabase().rawQuery(query, null)) {
@@ -291,9 +311,6 @@ public class DbHelper extends SQLiteOpenHelper {
                     note.setLatitude(cursor.getString(i++));
                     note.setLongitude(cursor.getString(i++));
                     note.setAddress(cursor.getString(i++));
-                    note.setChecklist("1".equals(cursor.getString(i++)));
-
-
                     // Add eventual attachments uri
                     note.setAttachmentsList(getNoteAttachments(note));
 

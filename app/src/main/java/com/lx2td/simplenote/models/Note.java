@@ -19,14 +19,12 @@ public class Note implements Serializable {
     private Double latitude;
     private Double longitude;
     private String address;
-    private Boolean checklist;
     private List<? extends Attachment> attachmentsList = new ArrayList();
     private transient List<Attachment> attachmentsListOld = new ArrayList();
 
     public Note() {
         this.title = "";
         this.content = "";
-        this.checklist = false;
     }
 
     public Note(Long creation, Long lastModification, String title, String content, String alarm, Integer reminderFired, String recurrenceRule, String latitude, String longitude, Integer checklist) {
@@ -39,7 +37,6 @@ public class Note implements Serializable {
         this.recurrenceRule = recurrenceRule;
         this.setLatitude(latitude);
         this.setLongitude(longitude);
-        this.checklist = checklist == 1;
     }
 
     public Note(Note note) {
@@ -57,7 +54,6 @@ public class Note implements Serializable {
         this.setLatitude(note.getLatitude());
         this.setLongitude(note.getLongitude());
         this.setAddress(note.getAddress());
-        this.setChecklist(note.isChecklist());
         ArrayList<Attachment> list = new ArrayList();
         Iterator i$ = note.getAttachmentsList().iterator();
 
@@ -205,18 +201,6 @@ public class Note implements Serializable {
 
     }
 
-    public Boolean isChecklist() {
-        return this.checklist != null && this.checklist;
-    }
-
-    public void setChecklist(Boolean checklist) {
-        this.checklist = checklist;
-    }
-
-    public void setChecklist(int checklist) {
-        this.checklist = checklist == 1;
-    }
-
     public String getAddress() {
         return this.address;
     }
@@ -263,8 +247,8 @@ public class Note implements Serializable {
             return res;
         }
 
-        Object[] a = new Object[]{this.getTitle(), this.getContent(), this.getCreation(), this.getLastModification(), this.getAlarm(), this.getRecurrenceRule(), this.getLatitude(), this.getLongitude(), this.getAddress(), this.isChecklist()};
-        Object[] b = new Object[]{note.getTitle(), note.getContent(), note.getCreation(), note.getLastModification(), note.getAlarm(), note.getRecurrenceRule(), note.getLatitude(), note.getLongitude(), note.getAddress(), note.isChecklist()};
+        Object[] a = new Object[]{this.getTitle(), this.getContent(), this.getCreation(), this.getLastModification(), this.getAlarm(), this.getRecurrenceRule(), this.getLatitude(), this.getLongitude(), this.getAddress()};
+        Object[] b = new Object[]{note.getTitle(), note.getContent(), note.getCreation(), note.getLastModification(), note.getAlarm(), note.getRecurrenceRule(), note.getLatitude(), note.getLongitude(), note.getAddress()};
         if (EqualityChecker.check(a, b)) {
             res = true;
         }

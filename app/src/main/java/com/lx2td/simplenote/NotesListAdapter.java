@@ -10,7 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.io.File;
+import com.lx2td.simplenote.database.DbHelper;
+import com.lx2td.simplenote.models.Note;
+
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,23 +21,25 @@ import java.util.List;
 
 class NotesListAdapter extends RecyclerView.Adapter<NotesListAdapter.ViewHolder> {
 
-    private List<File> fullList, filesList;
+    private DbHelper db;
+    private List<Note> fullList, notesList;
     private int colourText, colourBackground;
 
-    NotesListAdapter(int colourText, int colourBackground) {
-        filesList = new ArrayList<>();
+    NotesListAdapter(int colourText, int colourBackground, DbHelper db) {
+        notesList = new ArrayList<>();
         fullList = new ArrayList<>();
         this.colourText = colourText;
         this.colourBackground = colourBackground;
+        this.db = db;
     }
 
     @Override
     public void onBindViewHolder(@NonNull NotesListAdapter.ViewHolder holder, int position) {
-        File file = filesList.get(position);
-        String fileName = file.getName().substring(0, file.getName().length() - 4);
-        String fileDate = DateFormat.getDateInstance(DateFormat.MEDIUM).format(file.lastModified());
-        String fileTime = DateFormat.getTimeInstance(DateFormat.SHORT).format(file.lastModified());
-        holder.setData(fileName, fileDate, fileTime);
+        Note note = notesList.get(position);
+        String noteName = note.getTitle();
+        String noteDate = DateFormat.getDateInstance(DateFormat.MEDIUM).format(note.getLastModification());
+        String noteTime = DateFormat.getTimeInstance(DateFormat.SHORT).format(note.getLastModification());
+        holder.setData(noteName, noteDate, noteTime);
     }
 
     @NonNull
@@ -47,64 +51,64 @@ class NotesListAdapter extends RecyclerView.Adapter<NotesListAdapter.ViewHolder>
 
     @Override
     public int getItemCount() {
-        return filesList.size();
+        return notesList.size();
     }
 
-    void updateList(List<File> files, boolean sortAlphabetical) {
-        filesList = files;
+    void updateList(List<Note> notes, boolean sortAlphabetical) {
+        notesList = notes;
         sortList(sortAlphabetical);
-        fullList = new ArrayList<>(filesList);
+        fullList = new ArrayList<>(notesList);
     }
 
     void filterList(String query) {
         if (TextUtils.isEmpty(query)) {
-            DiffUtil.calculateDiff(new NotesDiffCallback(filesList, fullList)).dispatchUpdatesTo(this);
-            filesList = new ArrayList<>(fullList);
+            DiffUtil.calculateDiff(new NotesDiffCallback(notesList, fullList)).dispatchUpdatesTo(this);
+            notesList = new ArrayList<>(fullList);
         } else {
-            filesList.clear();
+            notesList.clear();
             for (int i = 0; i < fullList.size(); i++) {
-                final File file = fullList.get(i);
-                final String fileName = file.getName().substring(0, file.getName().length() - 4).toLowerCase();
-                if (fileName.contains(query)) {
-                    filesList.add(fullList.get(i));
+                final Note note = fullList.get(i);
+                final String noteName = note.getTitle().toLowerCase();
+                if (noteName.contains(query)) {
+                    notesList.add(fullList.get(i));
                 }
             }
-            DiffUtil.calculateDiff(new NotesDiffCallback(fullList, filesList)).dispatchUpdatesTo(this);
+            DiffUtil.calculateDiff(new NotesDiffCallback(fullList, notesList)).dispatchUpdatesTo(this);
         }
     }
 
     void sortList(boolean sortAlphabetical) {
         if (sortAlphabetical) {
-            sortAlphabetical(filesList);
+            sortAlphabetical(notesList);
         } else {
-            sortDate(filesList);
+            sortDate(notesList);
         }
-        DiffUtil.calculateDiff(new NotesDiffCallback(fullList, filesList)).dispatchUpdatesTo(this);
-        fullList = new ArrayList<>(filesList);
+        DiffUtil.calculateDiff(new NotesDiffCallback(fullList, notesList)).dispatchUpdatesTo(this);
+        fullList = new ArrayList<>(notesList);
     }
 
-    private void sortAlphabetical(List<File> files) {
-        Collections.sort(files, new Comparator<File>() {
-            public int compare(File f1, File f2) {
-                return (f1.getName().compareTo(f2.getName()));
+    private void sortAlphabetical(List<Note> notes) {
+        Collections.sort(notes, new Comparator<Note>() {
+            public int compare(Note f1, Note f2) {
+                return (f1.getTitle().compareTo(f2.getTitle()));
             }
         });
     }
 
-    private void sortDate(List<File> files) {
-        Collections.sort(files, new Comparator<File>() {
-            public int compare(File f1, File f2) {
-                return Long.compare(f2.lastModified(), f1.lastModified());
+    private void sortDate(List<Note> notes) {
+        Collections.sort(notes, new Comparator<Note>() {
+            public int compare(Note f1, Note f2) {
+                return Long.compare(f2.getLastModification(), f1.getLastModification());
             }
         });
     }
 
-    void deleteFile(int position) {
-        File file = filesList.get(position);
-        fullList.remove(file);
-        filesList.remove(file);
+    void deleteNote(int position) {
+        Note note = notesList.get(position);
+        fullList.remove(note);
+        notesList.remove(note);
         notifyItemRemoved(position);
-        file.delete();
+        db.deleteNote(note);
     }
 
     void cancelDelete(int position) {

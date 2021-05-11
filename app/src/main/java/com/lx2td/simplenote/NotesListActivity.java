@@ -67,6 +67,7 @@ public class NotesListActivity extends AppCompatActivity implements SearchView.O
 
         fab = findViewById(R.id.fab);
         emptyText = findViewById(R.id.tv_empty);
+        db = new DbHelper(NotesListActivity.this);
 
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(NotesListActivity.this);
@@ -80,7 +81,7 @@ public class NotesListActivity extends AppCompatActivity implements SearchView.O
             recyclerView.addItemDecoration(itemDecorator);
         }
 
-        notesListAdapter = new NotesListAdapter(colourFont, colourBackground);
+        notesListAdapter = new NotesListAdapter(colourFont, colourBackground, db);
         recyclerView.setAdapter(notesListAdapter);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
@@ -121,7 +122,7 @@ public class NotesListActivity extends AppCompatActivity implements SearchView.O
         }
 
         // Update the list
-        notesListAdapter.updateList(HelperUtils.getFiles(NotesListActivity.this), sortAlphabetical);
+        notesListAdapter.updateList(db.getAllNotes(), sortAlphabetical);
 
         showEmptyListMessage();
 
@@ -205,6 +206,7 @@ public class NotesListActivity extends AppCompatActivity implements SearchView.O
         sortAlphabetical = preferences.getBoolean(PREFERENCE_SORT_ALPHABETICAL, false);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void applySettings() {
         HelperUtils.applyColours(NotesListActivity.this, colourPrimary, colourNavbar);
         findViewById(R.id.layout_coordinator).setBackgroundColor(colourBackground);
@@ -262,7 +264,7 @@ public class NotesListActivity extends AppCompatActivity implements SearchView.O
                         .setMessage(getString(R.string.confirm_delete_text))
                         .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                notesListAdapter.deleteFile(viewHolder.getAdapterPosition());
+                                notesListAdapter.deleteNote(viewHolder.getAdapterPosition());
                                 showEmptyListMessage();
                             }
                         })

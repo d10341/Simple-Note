@@ -3,15 +3,16 @@ package com.lx2td.simplenote;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 
-import java.io.File;
+import com.lx2td.simplenote.models.Note;
+
 import java.util.List;
 
 public class NotesDiffCallback extends DiffUtil.Callback {
 
-    private List<File> oldList;
-    private List<File> newList;
+    private List<Note> oldList;
+    private List<Note> newList;
 
-    public NotesDiffCallback(List<File> oldList, List<File> newList) {
+    public NotesDiffCallback(List<Note> oldList, List<Note> newList) {
         this.oldList = oldList;
         this.newList = newList;
     }
@@ -28,12 +29,12 @@ public class NotesDiffCallback extends DiffUtil.Callback {
 
     @Override
     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-        return oldList.get(oldItemPosition).getName().equals(newList.get(newItemPosition).getName());
+        return oldList.get(oldItemPosition).getTitle().equals(newList.get(newItemPosition).getTitle());
     }
 
     @Override
     public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-        return oldList.get(oldItemPosition).lastModified() < (System.currentTimeMillis() - 5000);
+        return oldList.get(oldItemPosition).getContent().equals(newList.get(newItemPosition).getContent());
     }
 
     @Nullable
