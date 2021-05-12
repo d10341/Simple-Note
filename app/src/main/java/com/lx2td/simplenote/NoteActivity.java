@@ -484,59 +484,6 @@ public class NoteActivity extends AppCompatActivity {
         noteText.setHintTextColor(ColorUtils.setAlphaComponent(colourFont, 120));
     }
 
-    private void saveFile() {
-        // Get current title and note
-        String newTitle = titleText.getText().toString().trim().replace("/", " ");
-        String newNote = noteText.getText().toString().trim();
-
-        // Check if title and note are empty
-        if (TextUtils.isEmpty(newTitle) && TextUtils.isEmpty(newNote)) {
-            return;
-        }
-
-        // Check if title and note are unchanged
-        if (newTitle.equals(title) && newNote.equals(note)) {
-            return;
-        }
-
-        // Get file name to be saved if the title has changed or if it is empty
-        if (!title.equals(newTitle) || TextUtils.isEmpty(newTitle)) {
-            newTitle = newFileName(newTitle);
-            titleText.setText(newTitle);
-        }
-
-        // Save the file with the new file name and content
-        HelperUtils.writeFile(NoteActivity.this, newTitle, newNote);
-
-        // If the title is not empty and the file name has changed then delete the old file
-        if (!TextUtils.isEmpty(title) && !newTitle.equals(title)) {
-            deleteFile(title + HelperUtils.TEXT_FILE_EXTENSION);
-        }
-
-        // Set the title to be the new saved title for when the home button is pressed
-        title = newTitle;
-
-    }
-
-    private String newFileName(String name) {
-        // If it is empty, give it a default title of "Note"
-        if (TextUtils.isEmpty(name)) {
-            name = getString(R.string.note);
-        }
-        // If the name already exists, append a number to it
-        if (HelperUtils.fileExists(NoteActivity.this, name)) {
-            int i = 1;
-            while (true) {
-                if (!HelperUtils.fileExists(NoteActivity.this, name + " (" + i + ")") || title.equals(name + " (" + i + ")")) {
-                    name = (name + " (" + i + ")");
-                    break;
-                }
-                i++;
-            }
-        }
-        return name;
-    }
-
     private void addAttachment(Attachment attachment) {
         note.addAttachment(attachment);
     }

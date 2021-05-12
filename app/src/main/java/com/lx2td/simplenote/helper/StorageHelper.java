@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
@@ -28,7 +27,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.security.InvalidParameterException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -51,9 +49,7 @@ public class StorageHelper {
                 mExternalStorageWriteable = false;
                 break;
             default:
-                // Something else is wrong. It may be one of many other states, but
-                // all we need
-                // to know is we can neither read nor write
+                // Neither read nor write
                 mExternalStorageAvailable = mExternalStorageWriteable = false;
                 break;
         }
@@ -75,7 +71,7 @@ public class StorageHelper {
 
 
     /**
-     * Retrieves the folderwhere to store data to sync notes
+     * Retrieves the folder where to store data to sync notes
      */
     public static File getDbSyncDir(Context mContext) {
         File extFilesDir = mContext.getExternalFilesDir(null);
@@ -111,7 +107,6 @@ public class StorageHelper {
         } catch (IOException e) {
             try {
                 FileUtils.copyFile(new File(FileHelper.getPath(mContext, uri)), file);
-                // It's a path!!
             } catch (NullPointerException e1) {
                 try {
                     FileUtils.copyFile(new File(uri.getPath()), file);
@@ -129,9 +124,8 @@ public class StorageHelper {
                 if (contentResolverOutputStream != null) {
                     contentResolverOutputStream.close();
                 }
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
-
         }
         return file;
     }
@@ -153,7 +147,7 @@ public class StorageHelper {
                 if (os != null) {
                     os.close();
                 }
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
         }
     }
@@ -174,19 +168,6 @@ public class StorageHelper {
             return false;
         }
     }
-
-
-    public static boolean deleteExternalStoragePrivateFile(Context mContext, String name) {
-        // Checks for external storage availability
-        if (!checkStorage()) {
-            Toast.makeText(mContext, "Storage not available",
-                    Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        File file = new File(mContext.getExternalFilesDir(null), name);
-        return file.delete();
-    }
-
 
     public static boolean delete(Context mContext, String path) {
         if (!checkStorage()) {
@@ -239,35 +220,6 @@ public class StorageHelper {
         return createNewAttachmentFile(mContext, null);
     }
 
-    /**
-     * Create a path where we will place our private file on external
-     */
-    public static File copyToBackupDir(File backupDir, String fileName, InputStream fileInputStream) {
-        if (!checkStorage()) {
-            return null;
-        }
-        if (!backupDir.exists()) {
-            backupDir.mkdirs();
-        }
-        File destination = new File(backupDir, fileName);
-        try {
-            copyFile(fileInputStream, new FileOutputStream(destination));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return destination;
-    }
-
-
-    public static File getCacheDir(Context mContext) {
-        File dir = mContext.getExternalCacheDir();
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-        return dir;
-    }
-
-
     public static File getOrCreateExternalStoragePublicDir() throws Exception {
         File dir = new File(Environment.getExternalStorageDirectory() + File.separator
                 + "Simple Note" + File.separator);
@@ -276,38 +228,6 @@ public class StorageHelper {
         }
         return dir;
     }
-
-
-    public static File getOrCreateBackupDir(String backupName) throws Exception {
-        File backupDir = new File(getOrCreateExternalStoragePublicDir(), backupName);
-        if (!backupDir.exists() && backupDir.mkdirs()) {
-            createNoMediaFile(backupDir);
-        }
-        return backupDir;
-    }
-
-
-    private static void createNoMediaFile(File folder) {
-        try {
-            boolean created = new File(folder, ".nomedia").createNewFile();
-            if (!created) {
-            }
-        } catch (IOException e) {
-        }
-    }
-
-
-    public static File getSharedPreferencesFile(Context mContext) {
-        File appData = mContext.getFilesDir().getParentFile();
-        String packageName = mContext.getApplicationContext().getPackageName();
-        return new File(appData
-                + System.getProperty("file.separator")
-                + "shared_prefs"
-                + System.getProperty("file.separator")
-                + packageName
-                + "_preferences.xml");
-    }
-
 
     /**
      * Returns a directory size in bytes
@@ -322,8 +242,7 @@ public class StorageHelper {
             } else {
                 blockSize = statFs.getBlockSize();
             }
-            // Can't understand why on some devices this fails
-        } catch (NoSuchMethodError e) {
+        } catch (NoSuchMethodError ignored) {
         }
         return getSize(directory, blockSize);
     }
@@ -355,30 +274,6 @@ public class StorageHelper {
             return 0;
         }
     }
-
-
-    public static boolean copyDirectory(File sourceLocation, File targetLocation) {
-        boolean res = true;
-
-        // If target is a directory the method will be iterated
-        if (sourceLocation.isDirectory()) {
-            if (!targetLocation.exists()) {
-                targetLocation.mkdirs();
-            }
-
-            String[] children = sourceLocation.list();
-            for (int i = 0; i < sourceLocation.listFiles().length; i++) {
-                res = res && copyDirectory(new File(sourceLocation, children[i]), new File(targetLocation,
-                        children[i]));
-            }
-
-            // Otherwise a file copy will be performed
-        } else {
-            res = copyFile(sourceLocation, targetLocation);
-        }
-        return res;
-    }
-
 
     /**
      * Retrieves uri mime-type using ContentResolver
@@ -443,7 +338,7 @@ public class StorageHelper {
 
 
     /**
-     * Creates a fiile to be used as attachment.
+     * Creates a file to be used as attachment.
      */
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public static Attachment createAttachmentFromUri(Context mContext, Uri uri, boolean moveSource) {
@@ -472,26 +367,5 @@ public class StorageHelper {
         return mAttachment;
     }
 
-
-    /**
-     * Creates new attachment from web content
-     */
-    public static File createNewAttachmentFileFromHttp(Context mContext, String url)
-            throws IOException {
-        if (TextUtils.isEmpty(url)) {
-            return null;
-        }
-        return getFromHttp(url, createNewAttachmentFile(mContext, FileHelper.getFileExtension(url)));
-    }
-
-
-    /**
-     * Retrieves a file from its web url
-     */
-    public static File getFromHttp(String url, File file) throws IOException {
-        URL imageUrl = new URL(url);
-        FileUtils.copyURLToFile(imageUrl, file);
-        return file;
-    }
 
 }

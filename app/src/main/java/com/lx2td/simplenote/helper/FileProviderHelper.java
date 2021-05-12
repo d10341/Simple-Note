@@ -12,7 +12,7 @@ import java.io.File;
 
 public class FileProviderHelper {
     private FileProviderHelper() {
-        // hides public constructor
+
     }
 
     /**

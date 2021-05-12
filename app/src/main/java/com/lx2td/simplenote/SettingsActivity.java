@@ -6,9 +6,11 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import androidx.annotation.ColorInt;
+import androidx.annotation.RequiresApi;
 import 	androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.widget.CompoundButtonCompat;
@@ -60,6 +62,7 @@ public class SettingsActivity extends AppCompatActivity implements colorDialog.C
         colourNavbar = preferences.getBoolean(HelperUtils.PREFERENCE_COLOUR_NAVBAR, false);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void applySettings() {
         HelperUtils.applyColours(SettingsActivity.this, colourPrimary, colourNavbar);
 

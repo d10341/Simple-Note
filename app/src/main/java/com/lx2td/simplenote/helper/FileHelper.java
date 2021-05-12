@@ -19,7 +19,7 @@ import static java.lang.Long.parseLong;
 
 public class FileHelper {
     private FileHelper() {
-        // hides public constructor
+
     }
 
     /**
@@ -50,13 +50,6 @@ public class FileHelper {
 
                 // TODO handle non-primary volumes
             }
-            // DownloadsProvider
-            else if (isDownloadsDocument(uri)) {
-                final Uri contentUri = ContentUris
-                        .withAppendedId(Uri.parse("content://downloads/public_downloads"),
-                                parseLong(DocumentsContract.getDocumentId(uri)));
-                return getDataColumn(context, contentUri, null, null);
-            }
             // MediaProvider
             else if (isMediaDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
@@ -71,7 +64,7 @@ public class FileHelper {
                 return getDataColumn(context, contentUri, selection, selectionArgs);
             }
         }
-        // MediaStore (and general)
+        // MediaStore
         else if ("content".equalsIgnoreCase(uri.getScheme())) {
             return getDataColumn(context, uri, null, null);
         }
@@ -118,15 +111,6 @@ public class FileHelper {
      */
     public static boolean isExternalStorageDocument(Uri uri) {
         return "com.android.externalstorage.documents".equals(uri.getAuthority());
-    }
-
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is DownloadsProvider.
-     */
-    public static boolean isDownloadsDocument(Uri uri) {
-        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
 
 
