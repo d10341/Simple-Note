@@ -1,5 +1,8 @@
 package com.lx2td.simplenote.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.Gson;
 import com.lx2td.simplenote.utils.EqualityChecker;
 
@@ -8,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Note implements Serializable {
+public class Note implements Serializable, Parcelable {
     private String title;
     private String content;
     private Long creation;
@@ -285,5 +288,25 @@ public class Note implements Serializable {
         List<Attachment> attachmentsList = ((List<Attachment>) getAttachmentsList());
         attachmentsList.remove(attachment);
         setAttachmentsList(attachmentsList);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(String.valueOf(getCreation()));
+        dest.writeString(String.valueOf(getLastModification()));
+        dest.writeString(getTitle());
+        dest.writeString(getContent());
+        dest.writeString(getAlarm());
+        dest.writeInt(isReminderFired() ? 1 : 0);
+        dest.writeString(getRecurrenceRule());
+        dest.writeString(String.valueOf(getLatitude()));
+        dest.writeString(String.valueOf(getLongitude()));
+        dest.writeString(getAddress());
+        dest.writeList(getAttachmentsList());
     }
 }

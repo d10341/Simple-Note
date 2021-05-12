@@ -10,6 +10,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.util.Log;
 
+import com.lx2td.SimpleNote;
+import com.lx2td.simplenote.NotesListActivity;
 import com.lx2td.simplenote.models.Attachment;
 import com.lx2td.simplenote.models.Note;
 
@@ -73,7 +75,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
 
     public static synchronized DbHelper getInstance() {
-        return getInstance();
+        return getInstance(SimpleNote.getAppContext());
     }
 
 
@@ -252,8 +254,50 @@ public class DbHelper extends SQLiteOpenHelper {
      * @return Notes list
      */
     public List<Note> getAllNotes() {
-        String whereCondition = "";
-        return getNotes(whereCondition, true);
+        List<Note> noteList = new ArrayList<>();
+
+        // Generic query to be specialized with conditions passed as parameter
+        String query = "SELECT "
+                + KEY_CREATION + ","
+                + KEY_LAST_MODIFICATION + ","
+                + KEY_TITLE + ","
+                + KEY_CONTENT + ","
+                + KEY_REMINDER + ","
+                + KEY_REMINDER_FIRED + ","
+                + KEY_RECURRENCE_RULE + ","
+                + KEY_LATITUDE + ","
+                + KEY_LONGITUDE + ","
+                + KEY_ADDRESS
+                + " FROM " + TABLE_NOTES;
+
+
+        try (Cursor cursor = getDatabase().rawQuery(query, null)) {
+
+            if (cursor.moveToFirst()) {
+                do {
+                    int i = 0;
+                    Note note = new Note();
+                    note.setCreation(cursor.getLong(i++));
+                    note.setLastModification(cursor.getLong(i++));
+                    note.setTitle(cursor.getString(i++));
+                    note.setContent(cursor.getString(i++));
+                    note.setAlarm(cursor.getString(i++));
+                    note.setReminderFired(cursor.getInt(i++));
+                    note.setRecurrenceRule(cursor.getString(i++));
+                    note.setLatitude(cursor.getString(i++));
+                    note.setLongitude(cursor.getString(i++));
+                    note.setAddress(cursor.getString(i++));
+                    // Add eventual attachments uri
+                    note.setAttachmentsList(getNoteAttachments(note));
+
+                    // Adding note to list
+                    noteList.add(note);
+
+                } while (cursor.moveToNext());
+            }
+
+        }
+        return noteList;
     }
 
 
@@ -291,8 +335,8 @@ public class DbHelper extends SQLiteOpenHelper {
                 + KEY_LONGITUDE + ","
                 + KEY_ADDRESS
                 + " FROM " + TABLE_NOTES + " "
-                + whereCondition;
-                //+ (order ? " ORDER BY " + sortColumn + " COLLATE NOCASE " + sortOrder : "");
+                + whereCondition
+                + (order ? " ORDER BY " + sortColumn + " COLLATE NOCASE " + sortOrder : "");
 
 
         try (Cursor cursor = getDatabase().rawQuery(query, null)) {
@@ -363,12 +407,12 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
 
-    /**
-     * Retrieves all attachments
-     */
-    public ArrayList<Attachment> getAllAttachments() {
-        return getAttachments("");
-    }
+//    /**
+//     * Retrieves all attachments
+//     */
+//    public ArrayList<Attachment> getAllAttachments() {
+//        return getAttachments("");
+//    }
 
 
     /**

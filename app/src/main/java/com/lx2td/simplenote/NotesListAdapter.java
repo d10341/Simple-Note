@@ -4,12 +4,15 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.content.Intent;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.lx2td.SimpleNote;
 import com.lx2td.simplenote.database.DbHelper;
 import com.lx2td.simplenote.models.Note;
 
@@ -21,16 +24,14 @@ import java.util.List;
 
 class NotesListAdapter extends RecyclerView.Adapter<NotesListAdapter.ViewHolder> {
 
-    private DbHelper db;
     private List<Note> fullList, notesList;
     private int colourText, colourBackground;
 
-    NotesListAdapter(int colourText, int colourBackground, DbHelper db) {
+    NotesListAdapter(int colourText, int colourBackground) {
         notesList = new ArrayList<>();
         fullList = new ArrayList<>();
         this.colourText = colourText;
         this.colourBackground = colourBackground;
-        this.db = db;
     }
 
     @Override
@@ -108,7 +109,7 @@ class NotesListAdapter extends RecyclerView.Adapter<NotesListAdapter.ViewHolder>
         fullList.remove(note);
         notesList.remove(note);
         notifyItemRemoved(position);
-        db.deleteNote(note);
+        DbHelper.getInstance().deleteNote(note);
     }
 
     void cancelDelete(int position) {

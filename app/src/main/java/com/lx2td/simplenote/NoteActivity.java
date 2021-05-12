@@ -8,12 +8,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.media.ThumbnailUtils;
@@ -32,6 +34,7 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,9 +44,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.lx2td.simplenote.database.DbHelper;
 import com.lx2td.simplenote.models.Attachment;
 import com.lx2td.simplenote.models.Note;
+import com.lx2td.simplenote.utils.ConnectionManager;
 import com.lx2td.simplenote.utils.FileProviderHelper;
+import com.lx2td.simplenote.utils.GoogleLocation;
 import com.lx2td.simplenote.utils.HelperUtils;
 import com.lx2td.simplenote.utils.PermissionsHelper;
 import com.lx2td.simplenote.utils.StorageHelper;
@@ -51,8 +57,11 @@ import com.lx2td.simplenote.utils.StorageHelper;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import static com.lx2td.simplenote.utils.Constants.MIME_TYPE_IMAGE_EXT;
 import static com.lx2td.simplenote.utils.Constants.MIME_TYPE_VIDEO_EXT;
@@ -71,14 +80,12 @@ public class NoteActivity extends AppCompatActivity {
     private static final int FILES = 4;
 
     private boolean colourNavbar;
-    private String title, note;
+    private String title, content;
     private EditText noteText, titleText;
     private AlertDialog dialog;
     private MaterialDialog attachmentDialog;
     private NoteActivity mainActivity;
-    //private Note note;
-    private Note noteTmp;
-    private Note noteOriginal;
+    private Note note;
     private static Context context;
     private AttachmentAdapter mAttachmentAdapter;
 
@@ -92,6 +99,9 @@ public class NoteActivity extends AppCompatActivity {
     private Uri attachmentUri;
     private long audioRecordingTimeStart;
     private long audioRecordingTime;
+
+    private EditText detailTitle, detailContent;
+    private TextView creation, lastModification;
 
     private @ColorInt
     int colourPrimary, colourFont, colourBackground;
@@ -107,33 +117,36 @@ public class NoteActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note);
+
         titleText = findViewById(R.id.detail_title);
-        //noteText = findViewById(R.id.et_note);
+        noteText = findViewById(R.id.detail_content);
 
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
+
 
         // If activity started from a share intent
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             if ("text/plain".equals(type)) {
                 String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
                 noteText.setText(sharedText);
-                note = sharedText;
+                content = sharedText;
                 title = "";
             }
         } else { // If activity started from the notes list
             title = intent.getStringExtra(EXTRA_NOTE_TITLE);
             if (title == null || TextUtils.isEmpty(title)) {
                 title = "";
-                note = "";
+                content = "";
                 noteText.requestFocus();
                 if (getSupportActionBar() != null)
                     getSupportActionBar().setTitle(getString(R.string.new_note));
             } else {
                 titleText.setText(title);
-                note = HelperUtils.readFile(NoteActivity.this, title);
-                noteText.setText(note);
+//                content = ;
+//                noteText.setText(content);
+                initViews();
                 if (getSupportActionBar() != null)
                     getSupportActionBar().setTitle(title);
             }
@@ -146,7 +159,7 @@ public class NoteActivity extends AppCompatActivity {
     @Override
     public void onRestart() {
         super.onRestart();
-        note = noteText.getText().toString().trim();
+        content = noteText.getText().toString().trim();
         if (getCurrentFocus() != null)
             getCurrentFocus().clearFocus();
     }
@@ -154,7 +167,9 @@ public class NoteActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         if (!isChangingConfigurations()) {
-            saveFile();
+            note.setTitle(titleText.getText().toString());
+            note.setContent(noteText.getText().toString());
+            DbHelper.getInstance().updateNote(note, true);
         }
         if (dialog != null && dialog.isShowing())
             dialog.dismiss();
@@ -183,10 +198,9 @@ public class NoteActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.btn_attachment:
-                LayoutInflater inflater = mainActivity.getLayoutInflater();
-                final View layout = inflater.inflate(R.layout.attachment_dialog, null);
+                final View layout = LayoutInflater.from(this).inflate(R.layout.attachment_dialog, null);
 
-                attachmentDialog = new MaterialDialog.Builder(mainActivity)
+                attachmentDialog = new MaterialDialog.Builder(this)
                         .autoDismiss(false)
                         .customView(layout, false)
                         .build();
@@ -214,7 +228,7 @@ public class NoteActivity extends AppCompatActivity {
                 return(true);
 
             case R.id.btn_undo:
-                noteText.setText(note);
+                noteText.setText(content);
                 noteText.setSelection(noteText.getText().length());
                 return (true);
 
@@ -232,13 +246,11 @@ public class NoteActivity extends AppCompatActivity {
                         .setMessage(getString(R.string.confirm_delete_text))
                         .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                if (HelperUtils.fileExists(NoteActivity.this, title)) {
-                                    deleteFile(title + HelperUtils.TEXT_FILE_EXTENSION);
-                                }
+                                DbHelper.getInstance().deleteNote(note);
                                 title = "";
-                                note = "";
+                                content = "";
                                 titleText.setText(title);
-                                noteText.setText(note);
+                                noteText.setText(content);
                                 finish();
                             }
                         })
@@ -267,6 +279,64 @@ public class NoteActivity extends AppCompatActivity {
         filesIntent.setType("*/*");
         startActivityForResult(filesIntent, FILES);
     }
+
+    @SuppressLint("NewApi")
+    private void initViews() {
+
+        initViewTitle();
+
+        initViewContent();
+
+        initViewAttachments();
+
+//        initViewReminder();
+//
+       initViewFooter();
+    }
+
+    private void initViewFooter() {
+        creation = (TextView)findViewById(R.id.creation);
+        String m = String.valueOf(note.getCreation() / 1000 / 60);
+        String s = String.format("%02d", (note.getCreation() / 1000) % 60);
+        String creationStr = m + ":" + s;
+        creation.append(creation.length() > 0 ? "Created: " + creationStr : "");
+        if (creation.getText().length() == 0) {
+            creation.setVisibility(View.GONE);
+        }
+
+        lastModification = (TextView)findViewById(R.id.creation);
+        m = String.valueOf(note.getLastModification() / 1000 / 60);
+        s = String.format("%02d", (note.getLastModification() / 1000) % 60);
+        String lastModificationStr = m + ":" + s;
+        lastModification.append(lastModification.length() > 0 ? "Updated: " + lastModificationStr : "");
+        if (lastModification.getText().length() == 0) {
+            lastModification.setVisibility(View.GONE);
+        }
+    }
+
+    private void initViewTitle() {
+        detailTitle = ((EditText)findViewById(R.id.detail_title));
+        detailTitle.setText(note.getTitle());
+        //When editor action is pressed focus is moved to last character in content field
+        detailTitle.setOnEditorActionListener((v, actionId, event) -> {
+            EditText detailContent = ((EditText)findViewById(R.id.detail_content));
+            detailContent.requestFocus();
+            detailContent.setSelection(detailContent.getText().length());
+            return false;
+        });
+    }
+
+    private void initViewContent() {
+        detailContent = ((EditText)findViewById(R.id.detail_content));
+        detailContent.setText(note.getContent());
+        // Avoids focused line goes under the keyboard
+        detailContent.addTextChangedListener((TextWatcher) this);
+    }
+
+    private void initViewAttachments() {
+
+    }
+
 
     /**
      * Audio recordings playback
@@ -468,7 +538,7 @@ public class NoteActivity extends AppCompatActivity {
     }
 
     private void addAttachment(Attachment attachment) {
-        noteTmp.addAttachment(attachment);
+        note.addAttachment(attachment);
     }
 
     private void takePhoto() {
@@ -512,8 +582,13 @@ public class NoteActivity extends AppCompatActivity {
         return context;
     }
 
-    private void displayLocationDialog() {
-        //getLocation(new OnGeoUtilResultListenerImpl(mainActivity, mFragment, noteTmp));
+    private void displayLocation() {
+        if (!ConnectionManager.internetAvailable(context)) {
+            Location location = GoogleLocation.getLocation();
+            note.setLatitude(location.getLatitude());
+            note.setLongitude(location.getLongitude());
+            return;
+        }
     }
 
     private void askReadExternalStoragePermission() {
@@ -562,7 +637,7 @@ public class NoteActivity extends AppCompatActivity {
                     }
                     break;
                 case R.id.location:
-                    displayLocationDialog();
+                    displayLocation();
                     break;
                 case R.id.timestamp:
                     addTimestamp();

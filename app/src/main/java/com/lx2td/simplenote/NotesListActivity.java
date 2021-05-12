@@ -1,5 +1,6 @@
 package com.lx2td.simplenote;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -51,9 +52,14 @@ public class NotesListActivity extends AppCompatActivity implements SearchView.O
     private SharedPreferences preferences;
     private AlertDialog dialog;
     private DbHelper db;
+    private static Context context;
 
     private @ColorInt
     int colourPrimary, colourFont, colourBackground;
+
+    public static Context getContext() {
+        return context;
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -81,7 +87,7 @@ public class NotesListActivity extends AppCompatActivity implements SearchView.O
             recyclerView.addItemDecoration(itemDecorator);
         }
 
-        notesListAdapter = new NotesListAdapter(colourFont, colourBackground, db);
+        notesListAdapter = new NotesListAdapter(colourFont, colourBackground);
         recyclerView.setAdapter(notesListAdapter);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 

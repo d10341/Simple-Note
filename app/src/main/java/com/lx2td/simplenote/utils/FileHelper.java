@@ -168,11 +168,6 @@ public class FileHelper {
     }
 
 
-    public static String getFilePrefix(File file) {
-        return getFilePrefix(file.getName());
-    }
-
-
     public static String getFilePrefix(String fileName) {
         String prefix = fileName;
         int index = fileName.indexOf('.');
@@ -180,11 +175,6 @@ public class FileHelper {
             prefix = fileName.substring(0, index);
         }
         return prefix;
-    }
-
-
-    public static String getFileExtension(File file) {
-        return getFileExtension(file.getName());
     }
 
 
