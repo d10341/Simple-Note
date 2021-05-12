@@ -20,7 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.enrico.colorpicker.colorDialog;
-import com.lx2td.simplenote.utils.HelperUtils;
+import com.lx2td.simplenote.helper.HelperUtils;
 
 public class SettingsActivity extends AppCompatActivity implements colorDialog.ColorSelectedListener {
 

@@ -20,7 +20,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.lx2td.simplenote.database.DbHelper;
-import com.lx2td.simplenote.utils.HelperUtils;
+import com.lx2td.simplenote.helper.HelperUtils;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;

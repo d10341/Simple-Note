@@ -46,6 +46,48 @@ public class Note implements Serializable, Parcelable {
         this.buildFromNote(note);
     }
 
+    protected Note(Parcel in) {
+        title = in.readString();
+        content = in.readString();
+        if (in.readByte() == 0) {
+            creation = null;
+        } else {
+            creation = in.readLong();
+        }
+        if (in.readByte() == 0) {
+            lastModification = null;
+        } else {
+            lastModification = in.readLong();
+        }
+        alarm = in.readString();
+        byte tmpReminderFired = in.readByte();
+        reminderFired = tmpReminderFired == 0 ? null : tmpReminderFired == 1;
+        recurrenceRule = in.readString();
+        if (in.readByte() == 0) {
+            latitude = null;
+        } else {
+            latitude = in.readDouble();
+        }
+        if (in.readByte() == 0) {
+            longitude = null;
+        } else {
+            longitude = in.readDouble();
+        }
+        address = in.readString();
+    }
+
+    public static final Creator<Note> CREATOR = new Creator<Note>() {
+        @Override
+        public Note createFromParcel(Parcel in) {
+            return new Note(in);
+        }
+
+        @Override
+        public Note[] newArray(int size) {
+            return new Note[size];
+        }
+    };
+
     private void buildFromNote(Note note) {
         this.setTitle(note.getTitle());
         this.setContent(note.getContent());

@@ -1,4 +1,4 @@
-package com.lx2td.simplenote.utils;
+package com.lx2td.simplenote.helper;
 
 import android.app.Activity;
 import android.content.pm.PackageManager;
@@ -8,6 +8,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.lx2td.simplenote.utils.OnPermissionRequestedListener;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
 public class PermissionsHelper {

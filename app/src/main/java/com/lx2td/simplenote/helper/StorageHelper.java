@@ -1,4 +1,4 @@
-package com.lx2td.simplenote.utils;
+package com.lx2td.simplenote.helper;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -16,6 +16,7 @@ import androidx.annotation.RequiresApi;
 
 import com.lx2td.simplenote.NoteActivity;
 import com.lx2td.simplenote.models.Attachment;
+import com.lx2td.simplenote.utils.Constants;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;

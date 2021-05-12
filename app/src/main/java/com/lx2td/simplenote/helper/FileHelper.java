@@ -1,4 +1,4 @@
-package com.lx2td.simplenote.utils;
+package com.lx2td.simplenote.helper;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -10,6 +10,8 @@ import android.provider.DocumentsContract;
 import android.text.TextUtils;
 
 import androidx.annotation.RequiresApi;
+
+import com.lx2td.simplenote.utils.MediaStoreFactory;
 
 import java.io.File;
 

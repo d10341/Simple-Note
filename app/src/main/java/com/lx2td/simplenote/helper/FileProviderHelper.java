@@ -1,10 +1,7 @@
-package com.lx2td.simplenote.utils;
+package com.lx2td.simplenote.helper;
 
-import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Environment;
 
 import androidx.core.content.FileProvider;
 

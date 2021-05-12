@@ -1,4 +1,4 @@
-package com.lx2td.simplenote.utils;
+package com.lx2td.simplenote.helper;
 
 import android.app.Activity;
 import android.app.ActivityManager;

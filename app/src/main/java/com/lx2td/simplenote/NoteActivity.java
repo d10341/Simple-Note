@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -48,20 +47,17 @@ import com.lx2td.simplenote.database.DbHelper;
 import com.lx2td.simplenote.models.Attachment;
 import com.lx2td.simplenote.models.Note;
 import com.lx2td.simplenote.utils.ConnectionManager;
-import com.lx2td.simplenote.utils.FileProviderHelper;
+import com.lx2td.simplenote.helper.FileProviderHelper;
 import com.lx2td.simplenote.utils.GoogleLocation;
-import com.lx2td.simplenote.utils.HelperUtils;
-import com.lx2td.simplenote.utils.PermissionsHelper;
-import com.lx2td.simplenote.utils.StorageHelper;
+import com.lx2td.simplenote.helper.HelperUtils;
+import com.lx2td.simplenote.helper.PermissionsHelper;
+import com.lx2td.simplenote.helper.StorageHelper;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 import static com.lx2td.simplenote.utils.Constants.MIME_TYPE_IMAGE_EXT;
 import static com.lx2td.simplenote.utils.Constants.MIME_TYPE_VIDEO_EXT;
@@ -125,6 +121,7 @@ public class NoteActivity extends AppCompatActivity {
         String action = intent.getAction();
         String type = intent.getType();
 
+        init();
 
         // If activity started from a share intent
         if (Intent.ACTION_SEND.equals(action) && type != null) {
@@ -280,6 +277,13 @@ public class NoteActivity extends AppCompatActivity {
         startActivityForResult(filesIntent, FILES);
     }
 
+    private void init() {
+        creation = (TextView)findViewById(R.id.creation);
+        lastModification = (TextView)findViewById(R.id.creation);
+        detailTitle = ((EditText)findViewById(R.id.detail_title));
+        detailContent = ((EditText)findViewById(R.id.detail_content));
+    }
+
     @SuppressLint("NewApi")
     private void initViews() {
 
@@ -295,7 +299,6 @@ public class NoteActivity extends AppCompatActivity {
     }
 
     private void initViewFooter() {
-        creation = (TextView)findViewById(R.id.creation);
         String m = String.valueOf(note.getCreation() / 1000 / 60);
         String s = String.format("%02d", (note.getCreation() / 1000) % 60);
         String creationStr = m + ":" + s;
@@ -304,7 +307,6 @@ public class NoteActivity extends AppCompatActivity {
             creation.setVisibility(View.GONE);
         }
 
-        lastModification = (TextView)findViewById(R.id.creation);
         m = String.valueOf(note.getLastModification() / 1000 / 60);
         s = String.format("%02d", (note.getLastModification() / 1000) % 60);
         String lastModificationStr = m + ":" + s;
@@ -315,7 +317,6 @@ public class NoteActivity extends AppCompatActivity {
     }
 
     private void initViewTitle() {
-        detailTitle = ((EditText)findViewById(R.id.detail_title));
         detailTitle.setText(note.getTitle());
         //When editor action is pressed focus is moved to last character in content field
         detailTitle.setOnEditorActionListener((v, actionId, event) -> {
@@ -327,7 +328,6 @@ public class NoteActivity extends AppCompatActivity {
     }
 
     private void initViewContent() {
-        detailContent = ((EditText)findViewById(R.id.detail_content));
         detailContent.setText(note.getContent());
         // Avoids focused line goes under the keyboard
         detailContent.addTextChangedListener((TextWatcher) this);
